@@ -374,15 +374,15 @@ static ssize_t state_show(struct device *dev,
 
 	switch (arche_pdata->state) {
 	case ARCHE_PLATFORM_STATE_OFF:
-		return sprintf(buf, "off\n");
+		return sysfs_emit(buf, "off\n");
 	case ARCHE_PLATFORM_STATE_ACTIVE:
-		return sprintf(buf, "active\n");
+		return sysfs_emit(buf, "active\n");
 	case ARCHE_PLATFORM_STATE_STANDBY:
-		return sprintf(buf, "standby\n");
+		return sysfs_emit(buf, "standby\n");
 	case ARCHE_PLATFORM_STATE_FW_FLASHING:
-		return sprintf(buf, "fw_flashing\n");
+		return sysfs_emit(buf, "fw_flashing\n");
 	default:
-		return sprintf(buf, "unknown state\n");
+		return sysfs_emit(buf, "unknown state\n");
 	}
 }
 
@@ -443,37 +443,29 @@ static int arche_platform_probe(struct platform_device *pdev)
 		flags = GPIOD_OUT_LOW;
 
 	arche_pdata->svc_reset = devm_gpiod_get(dev, "svc,reset", flags);
-	if (IS_ERR(arche_pdata->svc_reset)) {
-		ret = PTR_ERR(arche_pdata->svc_reset);
-		dev_err(dev, "failed to request svc-reset GPIO: %d\n", ret);
-		return ret;
-	}
+	if (IS_ERR(arche_pdata->svc_reset))
+		return dev_err_probe(dev, PTR_ERR(arche_pdata->svc_reset),
+				     "failed to request svc-reset GPIO\n");
 	arche_platform_set_state(arche_pdata, ARCHE_PLATFORM_STATE_OFF);
 
 	arche_pdata->svc_sysboot = devm_gpiod_get(dev, "svc,sysboot",
 						  GPIOD_OUT_LOW);
-	if (IS_ERR(arche_pdata->svc_sysboot)) {
-		ret = PTR_ERR(arche_pdata->svc_sysboot);
-		dev_err(dev, "failed to request sysboot0 GPIO: %d\n", ret);
-		return ret;
-	}
+	if (IS_ERR(arche_pdata->svc_sysboot))
+		return dev_err_probe(dev, PTR_ERR(arche_pdata->svc_sysboot),
+				     "failed to request sysboot0 GPIO\n");
 
 	/* setup the clock request gpio first */
 	arche_pdata->svc_refclk_req = devm_gpiod_get(dev, "svc,refclk-req",
 						     GPIOD_IN);
-	if (IS_ERR(arche_pdata->svc_refclk_req)) {
-		ret = PTR_ERR(arche_pdata->svc_refclk_req);
-		dev_err(dev, "failed to request svc-clk-req GPIO: %d\n", ret);
-		return ret;
-	}
+	if (IS_ERR(arche_pdata->svc_refclk_req))
+		return dev_err_probe(dev, PTR_ERR(arche_pdata->svc_refclk_req),
+				     "failed to request svc-clk-req GPIO\n");
 
 	/* setup refclk2 to follow the pin */
 	arche_pdata->svc_ref_clk = devm_clk_get(dev, "svc_ref_clk");
-	if (IS_ERR(arche_pdata->svc_ref_clk)) {
-		ret = PTR_ERR(arche_pdata->svc_ref_clk);
-		dev_err(dev, "failed to get svc_ref_clk: %d\n", ret);
-		return ret;
-	}
+	if (IS_ERR(arche_pdata->svc_ref_clk))
+		return dev_err_probe(dev, PTR_ERR(arche_pdata->svc_ref_clk),
+				     "failed to get svc_ref_clk\n");
 
 	platform_set_drvdata(pdev, arche_pdata);
 
