@@ -463,10 +463,9 @@ static int owl_i2c_probe(struct platform_device *pdev)
 	}
 
 	i2c_dev->clk = devm_clk_get_enabled(dev, NULL);
-	if (IS_ERR(i2c_dev->clk)) {
-		dev_err(dev, "failed to enable clock\n");
-		return PTR_ERR(i2c_dev->clk);
-	}
+	if (IS_ERR(i2c_dev->clk))
+		return dev_err_probe(dev, PTR_ERR(i2c_dev->clk),
+				     "failed to enable clock\n");
 
 	i2c_dev->clk_rate = clk_get_rate(i2c_dev->clk);
 	if (!i2c_dev->clk_rate) {
@@ -490,10 +489,9 @@ static int owl_i2c_probe(struct platform_device *pdev)
 
 	ret = devm_request_irq(dev, irq, owl_i2c_interrupt, 0, pdev->name,
 			       i2c_dev);
-	if (ret) {
-		dev_err(dev, "failed to request irq %d\n", irq);
-		return ret;
-	}
+	if (ret)
+		return dev_err_probe(dev, ret, "failed to request irq %d\n",
+				     irq);
 
 	return i2c_add_adapter(&i2c_dev->adap);
 }
