@@ -194,10 +194,9 @@ static int tps6287x_i2c_probe(struct i2c_client *i2c)
 		return -ENOMEM;
 
 	config.regmap = devm_regmap_init_i2c(i2c, &tps6287x_regmap_config);
-	if (IS_ERR(config.regmap)) {
-		dev_err(dev, "Failed to init i2c\n");
-		return PTR_ERR(config.regmap);
-	}
+	if (IS_ERR(config.regmap))
+		return dev_err_probe(dev, PTR_ERR(config.regmap),
+				     "Failed to init i2c\n");
 
 	config.dev = dev;
 	config.of_node = dev->of_node;
@@ -207,10 +206,9 @@ static int tps6287x_i2c_probe(struct i2c_client *i2c)
 	reg_data->range = tps6287x_best_range(&config, &tps6287x_reg);
 
 	rdev = devm_regulator_register(dev, &tps6287x_reg, &config);
-	if (IS_ERR(rdev)) {
-		dev_err(dev, "Failed to register regulator\n");
-		return PTR_ERR(rdev);
-	}
+	if (IS_ERR(rdev))
+		return dev_err_probe(dev, PTR_ERR(rdev),
+				     "Failed to register regulator\n");
 
 	rdev->reg_data = (void *)reg_data;
 	dev_dbg(dev, "Probed regulator\n");
