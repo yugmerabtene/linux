@@ -14,12 +14,15 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Generate patches
         run: |
-          git fetch --depth=1 origin topic/iio-sysfs-emit-sprint1
-          git format-patch -3 -o patches/ origin/topic/iio-sysfs-emit-sprint1~3..origin/topic/iio-sysfs-emit-sprint1 || \
-          git format-patch -3 -o patches/ HEAD~3..HEAD
+          git fetch origin topic/iio-sysfs-emit-sprint1
+          mkdir -p patches
+          git format-patch -3 -o patches/ origin/topic/iio-sysfs-emit-sprint1~3..origin/topic/iio-sysfs-emit-sprint1
+          ls -la patches/
 
       - name: Send patches via SMTP
         env:
