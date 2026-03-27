@@ -242,7 +242,7 @@ BPF CO-RE-based tests and Clang version
 A set of selftests use BPF target-specific built-ins, which might require
 bleeding-edge Clang versions (Clang 12 nightly at this time).
 
-Few sub-tests of core_reloc test suit (part of test_progs test runner) require
+Few sub-tests of core_reloc test suite (part of test_progs test runner) require
 the following built-ins, listed with corresponding Clang diffs introducing
 them to Clang/LLVM. These sub-tests are going to be skipped if Clang is too
 old to support them, they shouldn't cause build failures or runtime test
