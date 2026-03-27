@@ -1314,10 +1314,8 @@ static int rk3x_i2c_probe(struct platform_device *pdev)
 
 	ret = devm_request_irq(&pdev->dev, irq, rk3x_i2c_irq,
 			       0, dev_name(&pdev->dev), i2c);
-	if (ret < 0) {
-		dev_err(&pdev->dev, "cannot request IRQ\n");
-		return ret;
-	}
+	if (ret)
+		return dev_err_probe(&pwd->dev, ret, "cannot request IRQ\n");
 
 	i2c->irq = irq;
 
