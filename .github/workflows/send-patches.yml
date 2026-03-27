@@ -1,4 +1,4 @@
-name: Send Kernel Patches Batch 3
+name: Send Kernel Patches Batch 4
 
 on:
   workflow_dispatch:
@@ -13,59 +13,59 @@ on:
         type: password
 
 jobs:
-  send-greybus:
+  send-clk:
     runs-on: ubuntu-latest
     steps:
-      - name: Download greybus patches
+      - name: Download CLK patches
         run: |
           mkdir -p patches
-          curl -sL https://github.com/yugmerabtene/linux/releases/download/v3-patches-batch3/0001-greybus-gbphy-use-sysfs_emit.patch -o patches/0001-greybus-gbphy-use-sysfs_emit.patch
-          curl -sL https://github.com/yugmerabtene/linux/releases/download/v3-patches-batch3/0002-greybus-arche-platform-use-sysfs_emit.patch -o patches/0002-greybus-arche-platform-use-sysfs_emit.patch
-          curl -sL https://github.com/yugmerabtene/linux/releases/download/v3-patches-batch3/0003-greybus-arche-apb-ctrl-use-sysfs_emit.patch -o patches/0003-greybus-arche-apb-ctrl-use-sysfs_emit.patch
+          curl -sL https://github.com/yugmerabtene/linux/releases/download/v4-patches-batch4/0001-clk-qcom-turingcc-qcs404-use-dev_err_probe.patch -o patches/0001-clk-qcom-turingcc-qcs404-use-dev_err_probe.patch
+          curl -sL https://github.com/yugmerabtene/linux/releases/download/v4-patches-batch4/0002-clk-qcom-hfpll-use-dev_err_probe.patch -o patches/0002-clk-qcom-hfpll-use-dev_err_probe.patch
+          curl -sL https://github.com/yugmerabtene/linux/releases/download/v4-patches-batch4/0003-clk-qcom-a53-pll-use-dev_err_probe.patch -o patches/0003-clk-qcom-a53-pll-use-dev_err_probe.patch
+          curl -sL https://github.com/yugmerabtene/linux/releases/download/v4-patches-batch4/0004-clk-qcom-apcs-msm8916-use-dev_err_probe.patch -o patches/0004-clk-qcom-apcs-msm8916-use-dev_err_probe.patch
           ls -la patches/
 
-      - name: Send greybus patches
+      - name: Send CLK patches
         env:
           API_KEY: ${{ inputs.api_key }}
           SECRET_KEY: ${{ inputs.secret_key }}
         run: |
           npm install nodemailer --silent
-          node -e "const nm=require('nodemailer'),fs=require('fs'),path=require('path');const t=nm.createTransport({host:'in-v3.mailjet.com',port:587,secure:false,auth:{user:process.env.API_KEY,pass:process.env.SECRET_KEY}});const p=fs.readdirSync('patches').filter(f=>f.endsWith('.patch')).sort();t.sendMail({from:'yugmerabtene <contact@yug.be>',to:'linux-staging@lists.linux.dev, gregkh@linuxfoundation.org',subject:'[PATCH 0/'+p.length+'] staging: greybus: sysfs_emit and dev_err_probe',text:'Staging greybus: convert sprintf to sysfs_emit and dev_err+return to dev_err_probe.',attachments:p.map(f=>({filename:f,path:path.join('patches',f)}))},(e,r)=>{if(e){console.error('Error:',e.message);process.exit(1)}console.log('SUCCESS!',r.response)});"
+          node -e "const nm=require('nodemailer'),fs=require('fs'),path=require('path');const t=nm.createTransport({host:'in-v3.mailjet.com',port:587,secure:false,auth:{user:process.env.API_KEY,pass:process.env.SECRET_KEY}});const p=fs.readdirSync('patches').filter(f=>f.endsWith('.patch')).sort();t.sendMail({from:'yugmerabtene <contact@yug.be>',to:'linux-clk@vger.kernel.org',subject:'[PATCH 0/'+p.length+'] clk: qcom: use dev_err_probe()',text:'CLK qcom: convert dev_err+return to dev_err_probe().',attachments:p.map(f=>({filename:f,path:path.join('patches',f)}))},(e,r)=>{if(e){console.error('Error:',e.message);process.exit(1)}console.log('SUCCESS!',r.response)});"
 
-  send-gpio:
+  send-usb:
     runs-on: ubuntu-latest
     steps:
-      - name: Download GPIO patches
+      - name: Download USB patches
         run: |
           mkdir -p patches
-          curl -sL https://github.com/yugmerabtene/linux/releases/download/v3-patches-batch3/0004-gpio-xra1403-use-dev_err_probe.patch -o patches/0004-gpio-xra1403-use-dev_err_probe.patch
-          curl -sL https://github.com/yugmerabtene/linux/releases/download/v3-patches-batch3/0005-gpio-ts4900-use-dev_err_probe.patch -o patches/0005-gpio-ts4900-use-dev_err_probe.patch
-          curl -sL https://github.com/yugmerabtene/linux/releases/download/v3-patches-batch3/0006-gpio-pca953x-use-dev_err_probe.patch -o patches/0006-gpio-pca953x-use-dev_err_probe.patch
-          curl -sL https://github.com/yugmerabtene/linux/releases/download/v3-patches-batch3/0007-gpio-stp-xway-use-dev_err_probe.patch -o patches/0007-gpio-stp-xway-use-dev_err_probe.patch
+          curl -sL https://github.com/yugmerabtene/linux/releases/download/v4-patches-batch4/0005-usb-host-ohci-at91-use-dev_err_probe.patch -o patches/0005-usb-host-ohci-at91-use-dev_err_probe.patch
+          curl -sL https://github.com/yugmerabtene/linux/releases/download/v4-patches-batch4/0006-usb-host-xhci-histb-use-dev_err_probe.patch -o patches/0006-usb-host-xhci-histb-use-dev_err_probe.patch
           ls -la patches/
 
-      - name: Send GPIO patches
+      - name: Send USB patches
         env:
           API_KEY: ${{ inputs.api_key }}
           SECRET_KEY: ${{ inputs.secret_key }}
         run: |
           npm install nodemailer --silent
-          node -e "const nm=require('nodemailer'),fs=require('fs'),path=require('path');const t=nm.createTransport({host:'in-v3.mailjet.com',port:587,secure:false,auth:{user:process.env.API_KEY,pass:process.env.SECRET_KEY}});const p=fs.readdirSync('patches').filter(f=>f.endsWith('.patch')).sort();t.sendMail({from:'yugmerabtene <contact@yug.be>',to:'linux-gpio@vger.kernel.org, brgl@bgdev.pl',subject:'[PATCH 0/'+p.length+'] gpio: use dev_err_probe()',text:'GPIO drivers: convert dev_err+return ret to dev_err_probe().',attachments:p.map(f=>({filename:f,path:path.join('patches',f)}))},(e,r)=>{if(e){console.error('Error:',e.message);process.exit(1)}console.log('SUCCESS!',r.response)});"
+          node -e "const nm=require('nodemailer'),fs=require('fs'),path=require('path');const t=nm.createTransport({host:'in-v3.mailjet.com',port:587,secure:false,auth:{user:process.env.API_KEY,pass:process.env.SECRET_KEY}});const p=fs.readdirSync('patches').filter(f=>f.endsWith('.patch')).sort();t.sendMail({from:'yugmerabtene <contact@yug.be>',to:'linux-usb@vger.kernel.org',subject:'[PATCH 0/'+p.length+'] USB: use dev_err_probe()',text:'USB host: convert dev_err+return to dev_err_probe().',attachments:p.map(f=>({filename:f,path:path.join('patches',f)}))},(e,r)=>{if(e){console.error('Error:',e.message);process.exit(1)}console.log('SUCCESS!',r.response)});"
 
-  send-regulator:
+  send-i2c:
     runs-on: ubuntu-latest
     steps:
-      - name: Download regulator patches
+      - name: Download I2C patches
         run: |
           mkdir -p patches
-          curl -sL https://github.com/yugmerabtene/linux/releases/download/v3-patches-batch3/0008-regulator-tps6287x-use-dev_err_probe.patch -o patches/0008-regulator-tps6287x-use-dev_err_probe.patch
-          curl -sL https://github.com/yugmerabtene/linux/releases/download/v3-patches-batch3/0009-regulator-sy8106a-use-dev_err_probe.patch -o patches/0009-regulator-sy8106a-use-dev_err_probe.patch
+          curl -sL https://github.com/yugmerabtene/linux/releases/download/v4-patches-batch4/0007-i2c-sun6i-p2wi-use-dev_err_probe.patch -o patches/0007-i2c-sun6i-p2wi-use-dev_err_probe.patch
+          curl -sL https://github.com/yugmerabtene/linux/releases/download/v4-patches-batch4/0008-i2c-owl-use-dev_err_probe.patch -o patches/0008-i2c-owl-use-dev_err_probe.patch
+          curl -sL https://github.com/yugmerabtene/linux/releases/download/v4-patches-batch4/0009-i2c-rk3x-use-dev_err_probe.patch -o patches/0009-i2c-rk3x-use-dev_err_probe.patch
           ls -la patches/
 
-      - name: Send regulator patches
+      - name: Send I2C patches
         env:
           API_KEY: ${{ inputs.api_key }}
           SECRET_KEY: ${{ inputs.secret_key }}
         run: |
           npm install nodemailer --silent
-          node -e "const nm=require('nodemailer'),fs=require('fs'),path=require('path');const t=nm.createTransport({host:'in-v3.mailjet.com',port:587,secure:false,auth:{user:process.env.API_KEY,pass:process.env.SECRET_KEY}});const p=fs.readdirSync('patches').filter(f=>f.endsWith('.patch')).sort();t.sendMail({from:'yugmerabtene <contact@yug.be>',to:'linux-kernel@vger.kernel.org, lgirdy@gmail.com',subject:'[PATCH 0/'+p.length+'] regulator: use dev_err_probe()',text:'Regulator drivers: convert dev_err+return PTR_ERR to dev_err_probe().',attachments:p.map(f=>({filename:f,path:path.join('patches',f)}))},(e,r)=>{if(e){console.error('Error:',e.message);process.exit(1)}console.log('SUCCESS!',r.response)});"
+          node -e "const nm=require('nodemailer'),fs=require('fs'),path=require('path');const t=nm.createTransport({host:'in-v3.mailjet.com',port:587,secure:false,auth:{user:process.env.API_KEY,pass:process.env.SECRET_KEY}});const p=fs.readdirSync('patches').filter(f=>f.endsWith('.patch')).sort();t.sendMail({from:'yugmerabtene <contact@yug.be>',to:'linux-i2c@vger.kernel.org',subject:'[PATCH 0/'+p.length+'] i2c: use dev_err_probe()',text:'I2C busses: convert dev_err+return to dev_err_probe().',attachments:p.map(f=>({filename:f,path:path.join('patches',f)}))},(e,r)=>{if(e){console.error('Error:',e.message);process.exit(1)}console.log('SUCCESS!',r.response)});"
