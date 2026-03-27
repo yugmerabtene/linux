@@ -319,7 +319,7 @@ there will be a compilation failure::
   libbpf: ELF relo #0 in section #6 has unexpected type 2 in .../bpf_tcp_nogpl.bpf.o
 
 Here, ``type 2`` refers to new relocation type ``R_BPF_64_ABS64``.
-To fix this issue, user newer libbpf.
+To fix this issue, use newer libbpf.
 
 .. Links
 .. _clang reloc patch: https://github.com/llvm/llvm-project/commit/6a2ea84600ba4bd3b2733bd8f08f5115eb32164b
