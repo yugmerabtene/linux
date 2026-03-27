@@ -156,12 +156,9 @@ static int ts4900_gpio_probe(struct i2c_client *client)
 	priv->input_bit = (uintptr_t)device_get_match_data(&client->dev);
 
 	priv->regmap = devm_regmap_init_i2c(client, &ts4900_regmap_config);
-	if (IS_ERR(priv->regmap)) {
-		ret = PTR_ERR(priv->regmap);
-		dev_err(&client->dev, "Failed to allocate register map: %d\n",
-			ret);
-		return ret;
-	}
+	if (IS_ERR(priv->regmap))
+		return dev_err_probe(&client->dev, PTR_ERR(priv->regmap),
+				      "Failed to allocate register map\n");
 
 	ret = devm_gpiochip_add_data(&client->dev, &priv->gpio_chip, priv);
 	if (ret < 0) {
