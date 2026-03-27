@@ -26,7 +26,7 @@ However, this was broken in the past and `kstkesp` was zero even during coredump
 * commit 0a1eb2d474ed ("fs/proc: Stop reporting eip and esp in /proc/PID/stat") changed kstkesp to
   always be zero
 
-* commit fd7d56270b52 ("fs/proc: Report eip/esp in /prod/PID/stat for coredumping") fixed it for the
+* commit fd7d56270b52 ("fs/proc: Report eip/esp in /proc/PID/stat for coredumping") fixed it for the
   coredumping thread. However, other threads in a coredumping process still had the problem.
 
 * commit cb8f381f1613 ("fs/proc/array.c: allow reporting eip/esp for all coredumping threads") fixed
