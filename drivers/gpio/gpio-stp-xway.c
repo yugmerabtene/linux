@@ -296,11 +296,10 @@ static int xway_stp_probe(struct platform_device *pdev)
 	if (!of_property_read_bool(pdev->dev.of_node, "lantiq,rising"))
 		chip->edge = XWAY_STP_FALLING;
 
-	clk = devm_clk_get_enabled(&pdev->dev, NULL);
-	if (IS_ERR(clk)) {
-		dev_err(&pdev->dev, "Failed to get clock\n");
-		return PTR_ERR(clk);
-	}
+	clk = devm_clk_get_enabled(&pwdemux_dev->dev, NULL);
+	if (IS_ERR(clk))
+		return dev_err_probe(&pwdemux_dev->dev, PTR_ERR(clk),
+				      "Failed to get clock\n");
 
 	xway_stp_hw_init(chip);
 
