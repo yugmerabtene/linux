@@ -300,16 +300,16 @@ static ssize_t state_show(struct device *dev,
 
 	switch (apb->state) {
 	case ARCHE_PLATFORM_STATE_OFF:
-		return sprintf(buf, "off%s\n",
+		return sysfs_emit(buf, "off%s\n",
 				apb->init_disabled ? ",disabled" : "");
 	case ARCHE_PLATFORM_STATE_ACTIVE:
-		return sprintf(buf, "active\n");
+		return sysfs_emit(buf, "active\n");
 	case ARCHE_PLATFORM_STATE_STANDBY:
-		return sprintf(buf, "standby\n");
+		return sysfs_emit(buf, "standby\n");
 	case ARCHE_PLATFORM_STATE_FW_FLASHING:
-		return sprintf(buf, "fw_flashing\n");
+		return sysfs_emit(buf, "fw_flashing\n");
 	default:
-		return sprintf(buf, "unknown state\n");
+		return sysfs_emit(buf, "unknown state\n");
 	}
 }
 
@@ -319,37 +319,28 @@ static int apb_ctrl_get_fw_data(struct platform_device *pdev,
 				struct arche_apb_ctrl_drvdata *apb)
 {
 	struct device *dev = &pdev->dev;
-	int ret;
 
 	apb->resetn = devm_gpiod_get(dev, "reset", GPIOD_OUT_LOW);
-	if (IS_ERR(apb->resetn)) {
-		ret = PTR_ERR(apb->resetn);
-		dev_err(dev, "Failed requesting reset GPIO: %d\n", ret);
-		return ret;
-	}
+	if (IS_ERR(apb->resetn))
+		return dev_err_probe(dev, PTR_ERR(apb->resetn),
+				     "Failed requesting reset GPIO\n");
 
 	apb->boot_ret = devm_gpiod_get(dev, "boot-ret", GPIOD_OUT_LOW);
-	if (IS_ERR(apb->boot_ret)) {
-		ret = PTR_ERR(apb->boot_ret);
-		dev_err(dev, "Failed requesting bootret GPIO: %d\n", ret);
-		return ret;
-	}
+	if (IS_ERR(apb->boot_ret))
+		return dev_err_probe(dev, PTR_ERR(apb->boot_ret),
+				     "Failed requesting bootret GPIO\n");
 
 	/* It's not mandatory to support power management interface */
 	apb->pwroff = devm_gpiod_get_optional(dev, "pwr-off", GPIOD_IN);
-	if (IS_ERR(apb->pwroff)) {
-		ret = PTR_ERR(apb->pwroff);
-		dev_err(dev, "Failed requesting pwroff_n GPIO: %d\n", ret);
-		return ret;
-	}
+	if (IS_ERR(apb->pwroff))
+		return dev_err_probe(dev, PTR_ERR(apb->pwroff),
+				     "Failed requesting pwroff_n GPIO\n");
 
 	/* Do not make clock mandatory as of now (for DB3) */
 	apb->clk_en = devm_gpiod_get_optional(dev, "clock-en", GPIOD_OUT_LOW);
-	if (IS_ERR(apb->clk_en)) {
-		ret = PTR_ERR(apb->clk_en);
-		dev_err(dev, "Failed requesting APB clock en GPIO: %d\n", ret);
-		return ret;
-	}
+	if (IS_ERR(apb->clk_en))
+		return dev_err_probe(dev, PTR_ERR(apb->clk_en),
+				     "Failed requesting APB clock en GPIO\n");
 
 	apb->pwrdn = devm_gpiod_get(dev, "pwr-down", GPIOD_OUT_LOW);
 	if (IS_ERR(apb->pwrdn)) {
