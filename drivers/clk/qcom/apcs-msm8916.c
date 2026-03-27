@@ -53,10 +53,8 @@ static int qcom_apcs_msm8916_clk_probe(struct platform_device *pdev)
 	int ret = -ENODEV;
 
 	regmap = dev_get_regmap(parent, NULL);
-	if (!regmap) {
-		dev_err(dev, "failed to get regmap: %d\n", ret);
-		return ret;
-	}
+	if (!regmap)
+		return dev_err_probe(dev, -ENODEV, "failed to get regmap\n");
 
 	a53cc = devm_kzalloc(dev, sizeof(*a53cc), GFP_KERNEL);
 	if (!a53cc)
