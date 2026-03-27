@@ -86,10 +86,9 @@ static int xhci_histb_clks_get(struct xhci_hcd_histb *histb)
 	struct device *dev = histb->dev;
 
 	histb->bus_clk = devm_clk_get(dev, "bus");
-	if (IS_ERR(histb->bus_clk)) {
-		dev_err(dev, "fail to get bus clk\n");
-		return PTR_ERR(histb->bus_clk);
-	}
+	if (IS_ERR(histb->bus_clk))
+		return dev_err_probe(dev, PTR_ERR(histb->bus_clk),
+				     "fail to get bus clk\n");
 
 	histb->utmi_clk = devm_clk_get(dev, "utmi");
 	if (IS_ERR(histb->utmi_clk)) {
@@ -218,10 +217,9 @@ static int xhci_histb_probe(struct platform_device *pdev)
 		return ret;
 
 	histb->soft_reset = devm_reset_control_get(dev, "soft");
-	if (IS_ERR(histb->soft_reset)) {
-		dev_err(dev, "failed to get soft reset\n");
-		return PTR_ERR(histb->soft_reset);
-	}
+	if (IS_ERR(histb->soft_reset))
+		return dev_err_probe(dev, PTR_ERR(histb->soft_reset),
+				     "failed to get soft reset\n");
 
 	pm_runtime_enable(dev);
 	pm_runtime_get_sync(dev);
