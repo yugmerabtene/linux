@@ -3,8 +3,12 @@ name: Send Kernel Patches
 on:
   workflow_dispatch:
     inputs:
-      smtp_password:
-        description: 'SMTP Password'
+      api_key:
+        description: 'Mailjet API Key'
+        required: true
+        type: password
+      secret_key:
+        description: 'Mailjet Secret Key'
         required: true
         type: password
 
@@ -22,12 +26,13 @@ jobs:
 
       - name: Send patches
         env:
-          SMTP_PASSWORD: ${{ inputs.smtp_password }}
+          API_KEY: ${{ inputs.api_key }}
+          SECRET_KEY: ${{ inputs.secret_key }}
         run: |
           npm install nodemailer --silent
           node -e "
           const nm=require('nodemailer'),fs=require('fs'),path=require('path');
-          const t=nm.createTransport({host:'ssl0.ovh.net',port:465,secure:true,auth:{user:'contact@yug.be',pass:process.env.SMTP_PASSWORD}});
+          const t=nm.createTransport({host:'in-v3.mailjet.com',port:587,secure:false,auth:{user:process.env.API_KEY,pass:process.env.SECRET_KEY}});
           const p=fs.readdirSync('patches').filter(f=>f.endsWith('.patch')).sort();
           t.sendMail({from:'yugmerabtene <contact@yug.be>',
             to:'linux-iio@vger.kernel.org, linux-staging@lists.linux.dev, linux-kernel@vger.kernel.org, jic23@kernel.org, gregkh@linuxfoundation.org',
