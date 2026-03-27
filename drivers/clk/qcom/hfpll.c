@@ -144,10 +144,8 @@ static int qcom_hfpll_probe(struct platform_device *pdev)
 	spin_lock_init(&h->lock);
 
 	ret = devm_clk_register_regmap(dev, &h->clkr);
-	if (ret) {
-		dev_err(dev, "failed to register regmap clock: %d\n", ret);
-		return ret;
-	}
+	if (ret)
+		return dev_err_probe(dev, ret, "failed to register regmap clock\n");
 
 	return devm_of_clk_add_hw_provider(dev, of_clk_hw_simple_get,
 					   &h->clkr.hw);
