@@ -90,6 +90,11 @@ while true; do
 	esac
 done
 
+if [ -n "$logfile" ] && [ -n "$per_test_logging" ]; then
+	echo "error: arguments -s and -p cannot be used together" >&2
+	exit 1
+fi
+
 # Add all selected collections to the explicit test list.
 if [ -n "$COLLECTIONS" ]; then
 	for collection in $COLLECTIONS ; do
