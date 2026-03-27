@@ -922,15 +922,18 @@ static int ad7779_probe(struct spi_device *spi)
 
 	st->mclk = devm_clk_get_enabled(dev, "mclk");
 	if (IS_ERR(st->mclk))
-		return PTR_ERR(st->mclk);
+		return dev_err_probe(dev, PTR_ERR(st->mclk),
+				     "failed to get mclk\n");
 
 	reset_gpio = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_LOW);
 	if (IS_ERR(reset_gpio))
-		return PTR_ERR(reset_gpio);
+		return dev_err_probe(dev, PTR_ERR(reset_gpio),
+				     "failed to get reset gpio\n");
 
 	start_gpio = devm_gpiod_get(dev, "start", GPIOD_OUT_HIGH);
 	if (IS_ERR(start_gpio))
-		return PTR_ERR(start_gpio);
+		return dev_err_probe(dev, PTR_ERR(start_gpio),
+				     "failed to get start gpio\n");
 
 	crc8_populate_msb(ad7779_crc8_table, AD7779_CRC8_POLY);
 	st->spi = spi;
