@@ -1,4 +1,4 @@
-resctrl_tests - resctrl file system test suit
+resctrl_tests - resctrl file system test suite
 
 Authors:
 	Fenghua Yu <fenghua.yu@intel.com>
@@ -9,7 +9,7 @@ both software and hardware.
 
 Currently it supports Memory Bandwidth Monitoring test and Memory Bandwidth
 Allocation test on Intel RDT hardware. More tests will be added in the future.
-And the test suit can be extended to cover AMD QoS and ARM MPAM hardware
+And the test suite can be extended to cover AMD QoS and ARM MPAM hardware
 as well.
 
 resctrl_tests can be run with or without kselftest framework.
