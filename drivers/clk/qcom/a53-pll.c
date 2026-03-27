@@ -134,17 +134,13 @@ static int qcom_a53pll_probe(struct platform_device *pdev)
 	pll->clkr.hw.init = &init;
 
 	ret = devm_clk_register_regmap(dev, &pll->clkr);
-	if (ret) {
-		dev_err(dev, "failed to register regmap clock: %d\n", ret);
-		return ret;
-	}
+	if (ret)
+		return dev_err_probe(dev, ret, "failed to register regmap clock\n");
 
 	ret = devm_of_clk_add_hw_provider(dev, of_clk_hw_simple_get,
 					  &pll->clkr.hw);
-	if (ret) {
-		dev_err(dev, "failed to add clock provider: %d\n", ret);
-		return ret;
-	}
+	if (ret)
+		return dev_err_probe(dev, ret, "failed to add clock provider\n");
 
 	return 0;
 }
