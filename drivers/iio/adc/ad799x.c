@@ -341,7 +341,7 @@ static ssize_t ad799x_read_frequency(struct device *dev,
 	if (ret < 0)
 		return ret;
 
-	return sprintf(buf, "%u\n", ad7998_frequencies[ret & AD7998_CYC_MASK]);
+	return sysfs_emit(buf, "%u\n", ad7998_frequencies[ret & AD7998_CYC_MASK]);
 }
 
 static ssize_t ad799x_write_frequency(struct device *dev,
