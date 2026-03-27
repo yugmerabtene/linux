@@ -1,0 +1,73 @@
+name: Send Kernel Patches
+
+on:
+  workflow_dispatch:
+    inputs:
+      smtp_password:
+        description: 'SMTP Password for contact@yug.be'
+        required: true
+        type: password
+
+jobs:
+  send-patches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Generate patches
+        run: |
+          git fetch --depth=1 origin topic/iio-sysfs-emit-sprint1
+          git format-patch -3 -o patches/ origin/topic/iio-sysfs-emit-sprint1~3..origin/topic/iio-sysfs-emit-sprint1 || \
+          git format-patch -3 -o patches/ HEAD~3..HEAD
+
+      - name: Send patches via SMTP
+        env:
+          SMTP_PASSWORD: ${{ inputs.smtp_password }}
+        run: |
+          npm install nodemailer --silent 2>/dev/null
+
+          cat > send_patches.js << 'SCRIPT'
+          const nodemailer = require('nodemailer');
+          const fs = require('fs');
+          const path = require('path');
+
+          const transporter = nodemailer.createTransport({
+            host: 'ssl0.ovh.net',
+            port: 465,
+            secure: true,
+            auth: {
+              user: 'contact@yug.be',
+              pass: process.env.SMTP_PASSWORD
+            }
+          });
+
+          let patches = [];
+          try {
+            patches = fs.readdirSync('patches').filter(f => f.endsWith('.patch')).sort();
+          } catch(e) {
+            console.error('No patches found');
+            process.exit(1);
+          }
+
+          const mailOptions = {
+            from: 'yugmerabtene <contact@yug.be>',
+            to: 'linux-iio@vger.kernel.org, linux-staging@lists.linux.dev, linux-kernel@vger.kernel.org, jic23@kernel.org, gregkh@linuxfoundation.org',
+            subject: `[PATCH 0/${patches.length}] staging: iio: convert sprintf to sysfs_emit`,
+            text: `This series converts sprintf() to sysfs_emit() in staging IIO drivers (ad7816, ad9834, ad5933) to follow kernel sysfs API best practices. All changes are non-functional.`,
+            attachments: patches.map(p => ({
+              filename: p,
+              path: path.join('patches', p)
+            }))
+          };
+
+          transporter.sendMail(mailOptions, (err, info) => {
+            if (err) {
+              console.error('Error sending:', err.message);
+              process.exit(1);
+            }
+            console.log('SUCCESS! Patches sent.', info.response);
+          });
+          SCRIPT
+
+          node send_patches.js
