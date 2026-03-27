@@ -176,11 +176,9 @@ static int xra1403_probe(struct spi_device *spi)
 	xra->chip.owner = THIS_MODULE;
 
 	xra->regmap = devm_regmap_init_spi(spi, &xra1403_regmap_cfg);
-	if (IS_ERR(xra->regmap)) {
-		ret = PTR_ERR(xra->regmap);
-		dev_err(&spi->dev, "Failed to allocate regmap: %d\n", ret);
-		return ret;
-	}
+	if (IS_ERR(xra->regmap))
+		return dev_err_probe(&spi->dev, PTR_ERR(xra->regmap),
+				      "Failed to allocate regmap\n");
 
 	return devm_gpiochip_add_data(&spi->dev, &xra->chip, xra);
 }
