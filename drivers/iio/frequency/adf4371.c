@@ -366,14 +366,14 @@ static ssize_t adf4371_read(struct iio_dev *indio_dev,
 		val = !(readval & BIT(bit));
 		break;
 	case ADF4371_CHANNEL_NAME:
-		return sprintf(buf, "%s\n", adf4371_ch_names[chan->channel]);
+		return sysfs_emit(buf, "%s\n", adf4371_ch_names[chan->channel]);
 	default:
 		ret = -EINVAL;
 		val = 0;
 		break;
 	}
 
-	return ret < 0 ? ret : sprintf(buf, "%llu\n", val);
+	return ret < 0 ? ret : sysfs_emit(buf, "%llu\n", val);
 }
 
 static ssize_t adf4371_write(struct iio_dev *indio_dev,
