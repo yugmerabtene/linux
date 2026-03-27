@@ -4,74 +4,35 @@ on:
   workflow_dispatch:
     inputs:
       smtp_password:
-        description: 'SMTP Password for contact@yug.be'
+        description: 'SMTP Password'
         required: true
         type: password
 
 jobs:
-  send-patches:
+  send:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout branch
-        uses: actions/checkout@v4
-        with:
-          ref: topic/iio-sysfs-emit-sprint1
-          fetch-depth: 0
-          fetch-tags: false
-
-      - name: Generate patches
+      - name: Download patches from release
         run: |
           mkdir -p patches
-          git format-patch -3 -o patches/ HEAD~3..HEAD
+          curl -sL https://github.com/yugmerabtene/linux/releases/download/v1-patches/0001-staging-iio-adc-ad7816-use-sysfs_emit-for-sysfs-show.patch -o patches/0001-staging-iio-adc-ad7816-use-sysfs_emit-for-sysfs-show.patch
+          curl -sL https://github.com/yugmerabtene/linux/releases/download/v1-patches/0002-staging-iio-frequency-ad9834-use-sysfs_emit-in-show-.patch -o patches/0002-staging-iio-frequency-ad9834-use-sysfs_emit-in-show-helpers.patch
+          curl -sL https://github.com/yugmerabtene/linux/releases/download/v1-patches/0003-staging-iio-impedance-analyzer-ad5933-use-sysfs_emit.patch -o patches/0003-staging-iio-impedance-analyzer-ad5933-use-sysfs_emit.patch
           ls -la patches/
 
-      - name: Send patches via SMTP
+      - name: Send patches
         env:
           SMTP_PASSWORD: ${{ inputs.smtp_password }}
         run: |
-          npm install nodemailer --silent 2>/dev/null
-
-          cat > send_patches.js << 'SCRIPT'
-          const nodemailer = require('nodemailer');
-          const fs = require('fs');
-          const path = require('path');
-
-          const transporter = nodemailer.createTransport({
-            host: 'ssl0.ovh.net',
-            port: 465,
-            secure: true,
-            auth: {
-              user: 'contact@yug.be',
-              pass: process.env.SMTP_PASSWORD
-            }
-          });
-
-          let patches = [];
-          try {
-            patches = fs.readdirSync('patches').filter(f => f.endsWith('.patch')).sort();
-          } catch(e) {
-            console.error('No patches found');
-            process.exit(1);
-          }
-
-          const mailOptions = {
-            from: 'yugmerabtene <contact@yug.be>',
-            to: 'linux-iio@vger.kernel.org, linux-staging@lists.linux.dev, linux-kernel@vger.kernel.org, jic23@kernel.org, gregkh@linuxfoundation.org',
-            subject: `[PATCH 0/${patches.length}] staging: iio: convert sprintf to sysfs_emit`,
-            text: `This series converts sprintf() to sysfs_emit() in staging IIO drivers (ad7816, ad9834, ad5933) to follow kernel sysfs API best practices. All changes are non-functional.`,
-            attachments: patches.map(p => ({
-              filename: p,
-              path: path.join('patches', p)
-            }))
-          };
-
-          transporter.sendMail(mailOptions, (err, info) => {
-            if (err) {
-              console.error('Error sending:', err.message);
-              process.exit(1);
-            }
-            console.log('SUCCESS! Patches sent.', info.response);
-          });
-          SCRIPT
-
-          node send_patches.js
+          npm install nodemailer --silent
+          node -e "
+          const nm=require('nodemailer'),fs=require('fs'),path=require('path');
+          const t=nm.createTransport({host:'ssl0.ovh.net',port:465,secure:true,auth:{user:'contact@yug.be',pass:process.env.SMTP_PASSWORD}});
+          const p=fs.readdirSync('patches').filter(f=>f.endsWith('.patch')).sort();
+          t.sendMail({from:'yugmerabtene <contact@yug.be>',
+            to:'linux-iio@vger.kernel.org, linux-staging@lists.linux.dev, linux-kernel@vger.kernel.org, jic23@kernel.org, gregkh@linuxfoundation.org',
+            subject:'[PATCH 0/'+p.length+'] staging: iio: convert sprintf to sysfs_emit',
+            text:'Convert sprintf() to sysfs_emit() in staging IIO drivers (ad7816, ad9834, ad5933). Non-functional changes.',
+            attachments:p.map(f=>({filename:f,path:path.join('patches',f)}))},
+            (e,r)=>{if(e){console.error('Error:',e.message);process.exit(1)}console.log('SUCCESS!',r.response)});
+          "
