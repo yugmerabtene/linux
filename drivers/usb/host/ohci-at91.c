@@ -207,23 +207,17 @@ static int usb_hcd_at91_probe(const struct hc_driver *driver,
 	hcd->rsrc_len = resource_size(res);
 
 	ohci_at91->iclk = devm_clk_get(dev, "ohci_clk");
-	if (IS_ERR(ohci_at91->iclk)) {
-		dev_err(dev, "failed to get ohci_clk\n");
-		retval = PTR_ERR(ohci_at91->iclk);
-		goto err;
-	}
+	if (IS_ERR(ohci_at91->iclk))
+		return dev_err_probe(dev, PTR_ERR(ohci_at91->iclk),
+				     "failed to get ohci_clk\n");
 	ohci_at91->fclk = devm_clk_get(dev, "uhpck");
-	if (IS_ERR(ohci_at91->fclk)) {
-		dev_err(dev, "failed to get uhpck\n");
-		retval = PTR_ERR(ohci_at91->fclk);
-		goto err;
-	}
+	if (IS_ERR(ohci_at91->fclk))
+		return dev_err_probe(dev, PTR_ERR(ohci_at91->fclk),
+				     "failed to get uhpck\n");
 	ohci_at91->hclk = devm_clk_get(dev, "hclk");
-	if (IS_ERR(ohci_at91->hclk)) {
-		dev_err(dev, "failed to get hclk\n");
-		retval = PTR_ERR(ohci_at91->hclk);
-		goto err;
-	}
+	if (IS_ERR(ohci_at91->hclk))
+		return dev_err_probe(dev, PTR_ERR(ohci_at91->hclk),
+				     "failed to get hclk\n");
 
 	ohci_at91->suspend_smc_id = at91_dt_suspend_smc(dev);
 	if (!ohci_at91->suspend_smc_id)  {
