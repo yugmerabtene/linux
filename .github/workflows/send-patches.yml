@@ -12,16 +12,17 @@ jobs:
   send-patches:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout branch
         uses: actions/checkout@v4
         with:
+          ref: topic/iio-sysfs-emit-sprint1
           fetch-depth: 0
+          fetch-tags: false
 
       - name: Generate patches
         run: |
-          git fetch origin topic/iio-sysfs-emit-sprint1
           mkdir -p patches
-          git format-patch -3 -o patches/ origin/topic/iio-sysfs-emit-sprint1~3..origin/topic/iio-sysfs-emit-sprint1
+          git format-patch -3 -o patches/ HEAD~3..HEAD
           ls -la patches/
 
       - name: Send patches via SMTP
