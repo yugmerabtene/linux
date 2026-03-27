@@ -81,11 +81,9 @@ static int sy8106a_i2c_probe(struct i2c_client *i2c)
 		return -EINVAL;
 
 	regmap = devm_regmap_init_i2c(i2c, &sy8106a_regmap_config);
-	if (IS_ERR(regmap)) {
-		error = PTR_ERR(regmap);
-		dev_err(dev, "Failed to allocate register map: %d\n", error);
-		return error;
-	}
+	if (IS_ERR(regmap))
+		return dev_err_probe(dev, PTR_ERR(regmap),
+				     "Failed to allocate register map\n");
 
 	config.dev = &i2c->dev;
 	config.regmap = regmap;
@@ -114,11 +112,9 @@ static int sy8106a_i2c_probe(struct i2c_client *i2c)
 
 	/* Probe regulator */
 	rdev = devm_regulator_register(&i2c->dev, &sy8106a_reg, &config);
-	if (IS_ERR(rdev)) {
-		error = PTR_ERR(rdev);
-		dev_err(&i2c->dev, "Failed to register SY8106A regulator: %d\n", error);
-		return error;
-	}
+	if (IS_ERR(rdev))
+		return dev_err_probe(dev, PTR_ERR(rdev),
+				     "Failed to register SY8106A regulator\n");
 
 	return 0;
 }
