@@ -1,4 +1,4 @@
-name: Send Kernel Patches Batch 2
+name: Send Kernel Patches Batch 3
 
 on:
   workflow_dispatch:
@@ -13,59 +13,59 @@ on:
         type: password
 
 jobs:
-  send-docs:
+  send-greybus:
     runs-on: ubuntu-latest
     steps:
-      - name: Download docs patches
+      - name: Download greybus patches
         run: |
           mkdir -p patches
-          curl -sL https://github.com/yugmerabtene/linux/releases/download/v2-patches-batch2/0001-kselftest-fix-timers-test-name.patch -o patches/0001-kselftest-fix-timers-test-name.patch
-          curl -sL https://github.com/yugmerabtene/linux/releases/download/v2-patches-batch2/0002-coredump-fix-proc-path.patch -o patches/0002-coredump-fix-proc-path.patch
-          curl -sL https://github.com/yugmerabtene/linux/releases/download/v2-patches-batch2/0003-bpf-fix-grammar-libbpf.patch -o patches/0003-bpf-fix-grammar-libbpf.patch
-          curl -sL https://github.com/yugmerabtene/linux/releases/download/v2-patches-batch2/0004-resctrl-fix-typo-test-suite.patch -o patches/0004-resctrl-fix-typo-test-suite.patch
+          curl -sL https://github.com/yugmerabtene/linux/releases/download/v3-patches-batch3/0001-greybus-gbphy-use-sysfs_emit.patch -o patches/0001-greybus-gbphy-use-sysfs_emit.patch
+          curl -sL https://github.com/yugmerabtene/linux/releases/download/v3-patches-batch3/0002-greybus-arche-platform-use-sysfs_emit.patch -o patches/0002-greybus-arche-platform-use-sysfs_emit.patch
+          curl -sL https://github.com/yugmerabtene/linux/releases/download/v3-patches-batch3/0003-greybus-arche-apb-ctrl-use-sysfs_emit.patch -o patches/0003-greybus-arche-apb-ctrl-use-sysfs_emit.patch
           ls -la patches/
 
-      - name: Send docs patches
+      - name: Send greybus patches
         env:
           API_KEY: ${{ inputs.api_key }}
           SECRET_KEY: ${{ inputs.secret_key }}
         run: |
           npm install nodemailer --silent
-          node -e "const nm=require('nodemailer'),fs=require('fs'),path=require('path');const t=nm.createTransport({host:'in-v3.mailjet.com',port:587,secure:false,auth:{user:process.env.API_KEY,pass:process.env.SECRET_KEY}});const p=fs.readdirSync('patches').filter(f=>f.endsWith('.patch')).sort();t.sendMail({from:'yugmerabtene <contact@yug.be>',to:'linux-kernel@vger.kernel.org',subject:'[PATCH 0/'+p.length+'] docs: fix typos and stale commands',text:'Documentation fixes: typo corrections and command updates.',attachments:p.map(f=>({filename:f,path:path.join('patches',f)}))},(e,r)=>{if(e){console.error('Error:',e.message);process.exit(1)}console.log('SUCCESS!',r.response)});"
+          node -e "const nm=require('nodemailer'),fs=require('fs'),path=require('path');const t=nm.createTransport({host:'in-v3.mailjet.com',port:587,secure:false,auth:{user:process.env.API_KEY,pass:process.env.SECRET_KEY}});const p=fs.readdirSync('patches').filter(f=>f.endsWith('.patch')).sort();t.sendMail({from:'yugmerabtene <contact@yug.be>',to:'linux-staging@lists.linux.dev, gregkh@linuxfoundation.org',subject:'[PATCH 0/'+p.length+'] staging: greybus: sysfs_emit and dev_err_probe',text:'Staging greybus: convert sprintf to sysfs_emit and dev_err+return to dev_err_probe.',attachments:p.map(f=>({filename:f,path:path.join('patches',f)}))},(e,r)=>{if(e){console.error('Error:',e.message);process.exit(1)}console.log('SUCCESS!',r.response)});"
 
-  send-iio:
+  send-gpio:
     runs-on: ubuntu-latest
     steps:
-      - name: Download IIO patches
+      - name: Download GPIO patches
         run: |
           mkdir -p patches
-          curl -sL https://github.com/yugmerabtene/linux/releases/download/v2-patches-batch2/0005-iio-ad799x-use-sysfs_emit.patch -o patches/0005-iio-ad799x-use-sysfs_emit.patch
-          curl -sL https://github.com/yugmerabtene/linux/releases/download/v2-patches-batch2/0006-iio-adf4371-use-sysfs_emit.patch -o patches/0006-iio-adf4371-use-sysfs_emit.patch
-          curl -sL https://github.com/yugmerabtene/linux/releases/download/v2-patches-batch2/0007-iio-ad7779-use-dev_err_probe.patch -o patches/0007-iio-ad7779-use-dev_err_probe.patch
+          curl -sL https://github.com/yugmerabtene/linux/releases/download/v3-patches-batch3/0004-gpio-xra1403-use-dev_err_probe.patch -o patches/0004-gpio-xra1403-use-dev_err_probe.patch
+          curl -sL https://github.com/yugmerabtene/linux/releases/download/v3-patches-batch3/0005-gpio-ts4900-use-dev_err_probe.patch -o patches/0005-gpio-ts4900-use-dev_err_probe.patch
+          curl -sL https://github.com/yugmerabtene/linux/releases/download/v3-patches-batch3/0006-gpio-pca953x-use-dev_err_probe.patch -o patches/0006-gpio-pca953x-use-dev_err_probe.patch
+          curl -sL https://github.com/yugmerabtene/linux/releases/download/v3-patches-batch3/0007-gpio-stp-xway-use-dev_err_probe.patch -o patches/0007-gpio-stp-xway-use-dev_err_probe.patch
           ls -la patches/
 
-      - name: Send IIO patches
+      - name: Send GPIO patches
         env:
           API_KEY: ${{ inputs.api_key }}
           SECRET_KEY: ${{ inputs.secret_key }}
         run: |
           npm install nodemailer --silent
-          node -e "const nm=require('nodemailer'),fs=require('fs'),path=require('path');const t=nm.createTransport({host:'in-v3.mailjet.com',port:587,secure:false,auth:{user:process.env.API_KEY,pass:process.env.SECRET_KEY}});const p=fs.readdirSync('patches').filter(f=>f.endsWith('.patch')).sort();t.sendMail({from:'yugmerabtene <contact@yug.be>',to:'linux-iio@vger.kernel.org, jic23@kernel.org',subject:'[PATCH 0/'+p.length+'] iio: use sysfs_emit and dev_err_probe',text:'IIO driver improvements: sysfs_emit conversions and dev_err_probe usage.',attachments:p.map(f=>({filename:f,path:path.join('patches',f)}))},(e,r)=>{if(e){console.error('Error:',e.message);process.exit(1)}console.log('SUCCESS!',r.response)});"
+          node -e "const nm=require('nodemailer'),fs=require('fs'),path=require('path');const t=nm.createTransport({host:'in-v3.mailjet.com',port:587,secure:false,auth:{user:process.env.API_KEY,pass:process.env.SECRET_KEY}});const p=fs.readdirSync('patches').filter(f=>f.endsWith('.patch')).sort();t.sendMail({from:'yugmerabtene <contact@yug.be>',to:'linux-gpio@vger.kernel.org, brgl@bgdev.pl',subject:'[PATCH 0/'+p.length+'] gpio: use dev_err_probe()',text:'GPIO drivers: convert dev_err+return ret to dev_err_probe().',attachments:p.map(f=>({filename:f,path:path.join('patches',f)}))},(e,r)=>{if(e){console.error('Error:',e.message);process.exit(1)}console.log('SUCCESS!',r.response)});"
 
-  send-selftests:
+  send-regulator:
     runs-on: ubuntu-latest
     steps:
-      - name: Download selftests patches
+      - name: Download regulator patches
         run: |
           mkdir -p patches
-          curl -sL https://github.com/yugmerabtene/linux/releases/download/v2-patches-batch2/0008-selftests-kselftest-conflict-flags.patch -o patches/0008-selftests-kselftest-conflict-flags.patch
-          curl -sL https://github.com/yugmerabtene/linux/releases/download/v2-patches-batch2/0009-selftests-fix-typo-test-suite.patch -o patches/0009-selftests-fix-typo-test-suite.patch
+          curl -sL https://github.com/yugmerabtene/linux/releases/download/v3-patches-batch3/0008-regulator-tps6287x-use-dev_err_probe.patch -o patches/0008-regulator-tps6287x-use-dev_err_probe.patch
+          curl -sL https://github.com/yugmerabtene/linux/releases/download/v3-patches-batch3/0009-regulator-sy8106a-use-dev_err_probe.patch -o patches/0009-regulator-sy8106a-use-dev_err_probe.patch
           ls -la patches/
 
-      - name: Send selftests patches
+      - name: Send regulator patches
         env:
           API_KEY: ${{ inputs.api_key }}
           SECRET_KEY: ${{ inputs.secret_key }}
         run: |
           npm install nodemailer --silent
-          node -e "const nm=require('nodemailer'),fs=require('fs'),path=require('path');const t=nm.createTransport({host:'in-v3.mailjet.com',port:587,secure:false,auth:{user:process.env.API_KEY,pass:process.env.SECRET_KEY}});const p=fs.readdirSync('patches').filter(f=>f.endsWith('.patch')).sort();t.sendMail({from:'yugmerabtene <contact@yug.be>',to:'linux-kernel@vger.kernel.org, shuah@kernel.org',subject:'[PATCH 0/'+p.length+'] selftests: fixes and improvements',text:'Selftests improvements: argument validation and typo fixes.',attachments:p.map(f=>({filename:f,path:path.join('patches',f)}))},(e,r)=>{if(e){console.error('Error:',e.message);process.exit(1)}console.log('SUCCESS!',r.response)});"
+          node -e "const nm=require('nodemailer'),fs=require('fs'),path=require('path');const t=nm.createTransport({host:'in-v3.mailjet.com',port:587,secure:false,auth:{user:process.env.API_KEY,pass:process.env.SECRET_KEY}});const p=fs.readdirSync('patches').filter(f=>f.endsWith('.patch')).sort();t.sendMail({from:'yugmerabtene <contact@yug.be>',to:'linux-kernel@vger.kernel.org, lgirdy@gmail.com',subject:'[PATCH 0/'+p.length+'] regulator: use dev_err_probe()',text:'Regulator drivers: convert dev_err+return PTR_ERR to dev_err_probe().',attachments:p.map(f=>({filename:f,path:path.join('patches',f)}))},(e,r)=>{if(e){console.error('Error:',e.message);process.exit(1)}console.log('SUCCESS!',r.response)});"
