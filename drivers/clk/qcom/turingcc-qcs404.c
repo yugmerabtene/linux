@@ -120,10 +120,8 @@ static int turingcc_probe(struct platform_device *pdev)
 		return ret;
 
 	ret = pm_clk_add(&pdev->dev, NULL);
-	if (ret < 0) {
-		dev_err(&pdev->dev, "failed to acquire iface clock\n");
-		return ret;
-	}
+	if (ret < 0)
+		return dev_err_probe(&pdev->dev, ret, "failed to acquire iface clock\n");
 
 	ret = pm_runtime_resume_and_get(&pdev->dev);
 	if (ret)
