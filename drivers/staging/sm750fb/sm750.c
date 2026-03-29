@@ -1164,12 +1164,8 @@ static int __init lynxfb_setup(char *options)
 		} else if (!strncmp(opt, "dual", strlen("dual"))) {
 			g_dualview = 1;
 		} else {
-			strcat(tmp, opt);
-			tmp += strlen(opt);
-			if (options)
-				*tmp++ = ':';
-			else
-				*tmp++ = 0;
+			tmp += scnprintf(tmp, len - (tmp - g_settings), "%s%s", opt,
+					 options ? ":" : "");
 		}
 	}
 
