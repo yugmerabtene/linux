@@ -113,8 +113,9 @@ TEST_F(timer_f, utimer) {
 	ASSERT_NE(buf, NULL);
 
 	/* The timeout should be the ticks interval * count of ticks + some delta */
-	sprintf(command, "./global-timer %d %d %d", SNDRV_TIMER_GLOBAL_UDRIVEN,
-		self->utimer_info->id, TICKS_COUNT * TIMER_FREQ_SEC + TICKS_RECORDING_DELTA);
+	snprintf(command, sizeof(command), "./global-timer %d %d %d",
+		 SNDRV_TIMER_GLOBAL_UDRIVEN, self->utimer_info->id,
+		 TICKS_COUNT * TIMER_FREQ_SEC + TICKS_RECORDING_DELTA);
 
 	rfp = popen(command, "r");
 	while (fgets(buf, TIMER_OUTPUT_BUF_LEN, rfp)) {

@@ -26,9 +26,10 @@ static void bind_to_timer(int device, int subdevice, int timeout)
 
 	time_t end;
 
-	sprintf(timer_name, "hw:CLASS=%d,SCLASS=%d,DEV=%d,SUBDEV=%d",
-		SND_TIMER_CLASS_GLOBAL, SND_TIMER_SCLASS_NONE,
-		device, subdevice);
+	snprintf(timer_name, sizeof(timer_name),
+		 "hw:CLASS=%d,SCLASS=%d,DEV=%d,SUBDEV=%d",
+		 SND_TIMER_CLASS_GLOBAL, SND_TIMER_SCLASS_NONE,
+		 device, subdevice);
 
 	snd_timer_params_alloca(&params);
 

@@ -314,7 +314,7 @@ void conf_load(void)
 		char *filename = malloc(sl);
 		if (filename == NULL)
 			ksft_exit_fail_msg("Out of memory\n");
-		sprintf(filename, "%s/%s", fn, namelist[j]->d_name);
+		snprintf(filename, sl, "%s/%s", fn, namelist[j]->d_name);
 		if (match_config(filename))
 			filename = NULL;
 		free(filename);
@@ -468,7 +468,7 @@ void conf_get_string_array(snd_config_t *root, const char *key1, const char *key
 		if (cfg == NULL) {
 			array[index] = def;
 		} else {
-			sprintf(buf, "%i", index);
+			snprintf(buf, sizeof(buf), "%i", index);
 			array[index] = conf_get_string(cfg, buf, NULL, def);
 		}
 	}

@@ -74,7 +74,7 @@ static void find_controls(void)
 	config = get_alsalib_config();
 
 	while (card >= 0) {
-		sprintf(name, "hw:%d", card);
+		snprintf(name, sizeof(name), "hw:%d", card);
 
 		card_data = malloc(sizeof(*card_data));
 		if (!card_data)

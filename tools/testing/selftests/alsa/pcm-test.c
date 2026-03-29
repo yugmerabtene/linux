@@ -174,7 +174,7 @@ static void find_pcms(void)
 		if (!card_data)
 			ksft_exit_fail_msg("Out of memory\n");
 
-		sprintf(name, "hw:%d", card);
+		snprintf(name, sizeof(name), "hw:%d", card);
 
 		err = snd_ctl_open_lconf(&handle, name, 0, config);
 		if (err < 0) {
@@ -225,7 +225,8 @@ static void find_pcms(void)
 
 			for (direction = 0; direction < 2; direction++) {
 				stream = direction ? SND_PCM_STREAM_CAPTURE : SND_PCM_STREAM_PLAYBACK;
-				sprintf(key, "pcm.%d.%s", dev, snd_pcm_stream_name(stream));
+				snprintf(key, sizeof(key), "pcm.%d.%s", dev,
+					 snd_pcm_stream_name(stream));
 				pcm_config = conf_get_subtree(card_config, key, NULL);
 				if (conf_get_bool(card_config, key, "skip", false)) {
 					ksft_print_msg("skipping pcm %d.%d.%s\n", card, dev, snd_pcm_stream_name(stream));
@@ -246,7 +247,8 @@ static void find_pcms(void)
 
 				count = snd_pcm_info_get_subdevices_count(pcm_info);
 				for (subdev = 0; subdev < count; subdev++) {
-					sprintf(key, "pcm.%d.%d.%s", dev, subdev, snd_pcm_stream_name(stream));
+					snprintf(key, sizeof(key), "pcm.%d.%d.%s", dev,
+						 subdev, snd_pcm_stream_name(stream));
 					if (conf_get_bool(card_config, key, "skip", false)) {
 						ksft_print_msg("skipping pcm %d.%d.%d.%s\n", card, dev,
 							       subdev, snd_pcm_stream_name(stream));
@@ -347,7 +349,8 @@ static void test_pcm_time(struct pcm_data *data, enum test_class class,
 		ksft_exit_fail_msg("Out of memory\n");
 	snd_pcm_format_set_silence(format, samples, rate * channels);
 
-	sprintf(name, "hw:%d,%d,%d", data->card, data->device, data->subdevice);
+	snprintf(name, sizeof(name), "hw:%d,%d,%d", data->card, data->device,
+		 data->subdevice);
 	err = snd_pcm_open(&handle, name, data->stream, 0);
 	if (err < 0) {
 		snprintf(msg, sizeof(msg), "Failed to get pcm handle: %s", snd_strerror(err));

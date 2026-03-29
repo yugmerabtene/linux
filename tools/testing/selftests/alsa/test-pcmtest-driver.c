@@ -38,14 +38,16 @@ static int read_patterns(void)
 	char plf[64];
 
 	for (i = 0; i < CH_NUM; i++) {
-		sprintf(plf, "/sys/kernel/debug/pcmtest/fill_pattern%d_len", i);
+		snprintf(plf, sizeof(plf),
+			 "/sys/kernel/debug/pcmtest/fill_pattern%d_len", i);
 		fpl = fopen(plf, "r");
 		if (!fpl)
 			return -1;
 		fscanf(fpl, "%u", &patterns[i].len);
 		fclose(fpl);
 
-		sprintf(pf, "/sys/kernel/debug/pcmtest/fill_pattern%d", i);
+		snprintf(pf, sizeof(pf), "/sys/kernel/debug/pcmtest/fill_pattern%d",
+			 i);
 		fp = fopen(pf, "r");
 		if (!fp)
 			return -1;
@@ -62,7 +64,8 @@ static int get_test_results(char *debug_name)
 	FILE *f;
 	char fname[128];
 
-	sprintf(fname, "/sys/kernel/debug/pcmtest/%s", debug_name);
+	snprintf(fname, sizeof(fname), "/sys/kernel/debug/pcmtest/%s",
+		 debug_name);
 
 	f = fopen(fname, "r");
 	if (!f) {
@@ -87,7 +90,7 @@ static int setup_handle(snd_pcm_t **handle, snd_pcm_sw_params_t *swparams,
 	char pcm_name[32];
 	int err;
 
-	sprintf(pcm_name, "hw:%d,0,0", card);
+	snprintf(pcm_name, sizeof(pcm_name), "hw:%d,0,0", card);
 	err = snd_pcm_open(handle, pcm_name, stream, 0);
 	if (err < 0)
 		return err;
