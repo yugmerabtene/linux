@@ -93,7 +93,8 @@ static long kthread_pid_ticks(void)
 	if (!args.kthread_pid)
 		return -1;
 
-	sprintf(procfs_path, "/proc/%u/stat", args.kthread_pid);
+	snprintf(procfs_path, sizeof(procfs_path), "/proc/%u/stat",
+		 args.kthread_pid);
 	f = fopen(procfs_path, "r");
 	if (!f) {
 		fprintf(stderr, "couldn't open %s, exiting\n", procfs_path);

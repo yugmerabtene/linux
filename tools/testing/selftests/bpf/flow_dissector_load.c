@@ -51,7 +51,7 @@ static void detach_program(void)
 		error(1, 0, "bpf_prog_detach");
 
 	/* To unpin, it is necessary and sufficient to just remove this dir */
-	sprintf(command, "rm -r %s", cfg_pin_path);
+	snprintf(command, sizeof(command), "rm -r %s", cfg_pin_path);
 	ret = system(command);
 	if (ret)
 		error(1, errno, "%s", command);

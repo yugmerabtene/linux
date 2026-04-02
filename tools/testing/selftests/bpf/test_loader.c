@@ -683,8 +683,8 @@ static int parse_test_spec(struct test_loader *tester,
 			goto cleanup;
 		}
 
-		strcpy(name, description);
-		strcpy(&name[descr_len], suffix);
+		snprintf(name, descr_len + strlen(suffix) + 1, "%s%s",
+			 description, suffix);
 		spec->unpriv.name = name;
 	}
 
